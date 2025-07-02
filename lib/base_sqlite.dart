@@ -1,5 +1,5 @@
-import 'dart:convert'; // Para utf8.encode
-import 'package:crypto/crypto.dart'; // Para sha256
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 

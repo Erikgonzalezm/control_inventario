@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'base_sqlite.dart';
+import 'menu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage(username: username)),
+          MaterialPageRoute(builder: (context) => MenuPage(username: username)),
         );
       } else {
         // ignore: use_build_context_synchronously
@@ -129,22 +130,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  final String username;
-
-  const HomePage({Key? key, required this.username}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bienvenido')),
-      body: Center(
-        child: Text('Hola, $username', style: const TextStyle(fontSize: 24)),
       ),
     );
   }
