@@ -4,29 +4,40 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DBHelper {
-  // Función para hacer hash de la contraseña
-  static String hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
+  static Database? _db;
+
+  static Future<Database> get database async {
+    if (_db != null) return _db!;
+    _db = await initDB();
+    return _db!;
   }
 
-  // Inicializa la base de datos
   static Future<Database> initDB() async {
     final path = join(await getDatabasesPath(), 'test.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2, // ← CAMBIA la versión si ya habías creado la base de datos
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            password TEXT
-          )
-        ''');
+        CREATE TABLE users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT,
+          password TEXT
+        )
+      ''');
 
-        // Inserta usuario por defecto con contraseña hacheada
+        await db.execute('''
+        CREATE TABLE qr_data (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre TEXT,
+          descripcion TEXT,
+          fecha TEXT,
+          contenido TEXT,
+          imagenPath TEXT
+        )
+      ''');
+
+        // Usuario por defecto
         await db.insert('users', {
           'username': 'erik',
           'password': hashPassword('1234'),
@@ -35,9 +46,14 @@ class DBHelper {
     );
   }
 
-  // Verifica si existe el usuario y contraseña usando hash
+  static String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
   static Future<bool> validateUser(String username, String password) async {
-    final db = await initDB();
+    final db = await database;
     final hashedPassword = hashPassword(password);
     final result = await db.query(
       'users',
@@ -47,29 +63,44 @@ class DBHelper {
     return result.isNotEmpty;
   }
 
-  // Registra un nuevo usuario con contraseña hasheada
   static Future<bool> registerUser(String username, String password) async {
-    final db = await initDB();
-
-    // Verifica si el usuario ya existe
+    final db = await database;
     final existing = await db.query(
       'users',
       where: 'username = ?',
       whereArgs: [username],
     );
+    if (existing.isNotEmpty) return false;
 
-    if (existing.isNotEmpty) {
-      // Usuario ya existe
-      return false;
-    }
-
-    // Inserta el nuevo usuario con contraseña hasheada
     final hashedPassword = hashPassword(password);
     await db.insert('users', {
       'username': username,
       'password': hashedPassword,
     });
-
     return true;
+  }
+
+  // Inserta un nuevo QR
+  static Future<void> insertarQR(
+    String nombre,
+    String descripcion,
+    String fecha,
+    String contenido,
+    String imagenPath,
+  ) async {
+    final db = await database;
+    await db.insert('qr_data', {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'fecha': fecha,
+      'contenido': contenido,
+      'imagenPath': imagenPath,
+    });
+  }
+
+  // Obtiene todos los QR guardados
+  static Future<List<Map<String, dynamic>>> obtenerTodosQR() async {
+    final db = await database;
+    return await db.query('qr_data', orderBy: 'id DESC');
   }
 }

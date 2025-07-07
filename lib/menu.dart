@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
 import 'menu_consulta.dart';
+import 'crea_qr.dart';
+import 'lista_qr.dart';
 
 class MenuPage extends StatefulWidget {
   final String username;
@@ -93,7 +95,7 @@ class _MenuPageState extends State<MenuPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
                   backgroundColor: const Color.fromARGB(255, 184, 205, 223),
                   foregroundColor: Colors.black,
                 ),
@@ -106,7 +108,10 @@ class _MenuPageState extends State<MenuPage> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Acción del botón ingresar nuevo
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreaQR()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -115,6 +120,24 @@ class _MenuPageState extends State<MenuPage> {
                   foregroundColor: Colors.black,
                 ),
                 child: const Text('ingresar nuevo'),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ListaQR()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  backgroundColor: const Color.fromARGB(255, 184, 205, 223),
+                  foregroundColor: Colors.black,
+                ),
+                child: const Text('Ver QR guardados'),
               ),
             ),
           ],
